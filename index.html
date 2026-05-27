@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NoiseLock</title>
+<title>A2O 음원 반출 관리 시스템</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap');
 
@@ -27,7 +27,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 
 /* Header */
 header { display: flex; align-items: center; justify-content: space-between; padding: 15px 36px; background: var(--surface); border-bottom: 1px solid var(--border); }
-.logo { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--text); letter-spacing: -0.02em; }
+.logo { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
 .logo span { color: var(--muted); }
 
 
@@ -188,7 +188,7 @@ input[type=file] { display: none; }
 <body>
 
 <header>
-  <div class="logo">NoiseLock<span>.sys</span></div>
+  <div class="logo">A2O 음원 반출 관리 시스템</div>
 </header>
 
 <main>
@@ -474,6 +474,7 @@ function onReqDateChange() {
 }
 
 function checkReady() {
+  const t      = document.getElementById('songTitle').value.trim();
   const from_  = document.getElementById('recipient').value.trim();
   const to_    = document.getElementById('receiver').value.trim();
   const reason = document.getElementById('reason').value.trim();
