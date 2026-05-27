@@ -231,7 +231,7 @@ input[type=file] { display: none; }
       <div class="field"><label>반출 사유</label><input type="text" id="reason" placeholder="예: 안무제작" oninput="updateFn()"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
         <div class="field"><label>요청 일자</label><input type="date" id="reqDate" oninput="onReqDateChange()"></div>
-        <div class="field"><label>반출 일자</label><input type="date" id="expDate" oninput="updateFn()"></div>
+        <div class="field"><label>반출 일자</label><input type="date" id="expDate" readonly style="background:var(--surface2);color:var(--muted2);cursor:default;"></div>
       </div>
       <div>
         <div class="lbl" style="margin-bottom:5px">파일명</div>
@@ -465,11 +465,12 @@ function updateFn() {
   }
   checkReady();
 }
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function onReqDateChange() {
-  const req = document.getElementById('reqDate').value;
-  const expInput = document.getElementById('expDate');
-  expInput.min = req;
-  if (expInput.value && expInput.value < req) expInput.value = '';
   updateFn();
 }
 
@@ -479,8 +480,7 @@ function checkReady() {
   const to_    = document.getElementById('receiver').value.trim();
   const reason = document.getElementById('reason').value.trim();
   const req    = document.getElementById('reqDate').value;
-  const exp    = document.getElementById('expDate').value;
-  document.getElementById('procBtn').disabled = !(audioFile && t && from_ && to_ && reason && req && exp);
+  document.getElementById('procBtn').disabled = !(audioFile && t && from_ && to_ && reason && req);
 }
 function changeCount(d) {
   noiseCount = Math.max(1, Math.min(15, noiseCount + d));
@@ -862,7 +862,7 @@ function retry() {
   document.getElementById('receiver').value = '';
   document.getElementById('reason').value = '';
   document.getElementById('reqDate').value = '';
-  document.getElementById('expDate').value = '';
+  document.getElementById('expDate').value = todayStr();
   noiseCount = 7; document.getElementById('cNum').textContent = '7';
   currentStepIdx = 3; noisePositions = [];
   document.querySelectorAll('.step-btn').forEach((b, i) => b.classList.toggle('active', i === 3));
@@ -890,6 +890,7 @@ function fmtB(b) { return b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).
 function ds() { const d = new Date(); return `${String(d.getFullYear()).slice(2)}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
 
 checkReady();
+document.getElementById('expDate').value = todayStr();
 </script>
 </body>
 </html>
