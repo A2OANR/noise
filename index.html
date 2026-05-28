@@ -865,8 +865,8 @@ async function logToSheet() {
     const params = new URLSearchParams({
       reqDate:   fmtDate(document.getElementById('reqDate').value),
       expDate:   fmtDate(document.getElementById('expDate').value),
-      title:     document.getElementById('songTitle').value.trim(),
       producer:  document.getElementById('producer').value.trim(),
+      title:     document.getElementById('songTitle').value.trim(),
       from:      document.getElementById('recipient').value.trim(),
       to:        document.getElementById('receiver').value.trim(),
       reason:    document.getElementById('reason').value.trim(),
