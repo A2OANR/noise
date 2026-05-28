@@ -70,7 +70,7 @@ input[type=file] { display: none; }
 
 /* Fields */
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+.field label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; line-height: 1.4; }
 .field input { border: 1px solid var(--border); border-radius: 6px; padding: 8px 11px; font-size: 13px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s; font-family: var(--sans); }
 .field input:focus { border-color: var(--text); background: var(--surface); }
 .field input::placeholder { color: var(--muted); }
@@ -229,11 +229,12 @@ input[type=file] { display: none; }
     <div style="display:flex;flex-direction:column;gap:9px">
       <div class="lbl" style="margin-bottom:0">02 — 메타데이터</div>
       <div class="field"><label>곡 제목</label><input type="text" id="songTitle" placeholder="곡명" oninput="updateFn()"></div>
+      <div class="field"><label>노이즈 음원 제작자 (반드시 본명 입력할 것)</label><input type="text" id="producer" placeholder="예: 홍길동" oninput="updateFn()"></div>
       <div class="field"><label>보내는 곳</label><input type="text" id="recipient" placeholder="예: A&amp;R실" oninput="updateFn()"></div>
       <div class="field"><label>받는 곳</label><input type="text" id="receiver" placeholder="예: 팀명_이름" oninput="updateFn()"></div>
       <div class="field"><label>반출 사유</label><input type="text" id="reason" placeholder="예: 안무제작" oninput="updateFn()"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
-        <div class="field"><label>요청 일자</label><input type="date" id="reqDate" oninput="onReqDateChange()"></div>
+        <div class="field"><label>요청 일자</label><input type="date" id="reqDate" min="2026-05-01" oninput="onReqDateChange()"></div>
         <div class="field"><label>반출 일자</label><input type="date" id="expDate" readonly style="background:var(--surface2);color:var(--muted2);cursor:default;"></div>
       </div>
       <div>
@@ -474,16 +475,20 @@ function todayStr() {
 }
 
 function onReqDateChange() {
+  // 요청 일자는 오늘 이후로 선택 불가 (반출일자보다 늦을 수 없음)
+  const reqInput = document.getElementById('reqDate');
+  reqInput.max = todayStr();
   updateFn();
 }
 
 function checkReady() {
-  const t      = document.getElementById('songTitle').value.trim();
-  const from_  = document.getElementById('recipient').value.trim();
-  const to_    = document.getElementById('receiver').value.trim();
-  const reason = document.getElementById('reason').value.trim();
-  const req    = document.getElementById('reqDate').value;
-  document.getElementById('procBtn').disabled = !(audioFile && t && from_ && to_ && reason && req);
+  const t        = document.getElementById('songTitle').value.trim();
+  const producer = document.getElementById('producer').value.trim();
+  const from_    = document.getElementById('recipient').value.trim();
+  const to_      = document.getElementById('receiver').value.trim();
+  const reason   = document.getElementById('reason').value.trim();
+  const req      = document.getElementById('reqDate').value;
+  document.getElementById('procBtn').disabled = !(audioFile && t && producer && from_ && to_ && reason && req);
 }
 function changeCount(d) {
   noiseCount = Math.max(1, Math.min(15, noiseCount + d));
@@ -793,12 +798,13 @@ function fmtDate(val) {
 }
 
 function buildTxt() {
-  const title   = document.getElementById('songTitle').value.trim();
-  const from_   = document.getElementById('recipient').value.trim();
-  const to_     = document.getElementById('receiver').value.trim();
-  const reason  = document.getElementById('reason').value.trim();
-  const reqDate = fmtDate(document.getElementById('reqDate').value);
-  const expDate = fmtDate(document.getElementById('expDate').value);
+  const title    = document.getElementById('songTitle').value.trim();
+  const producer = document.getElementById('producer').value.trim();
+  const from_    = document.getElementById('recipient').value.trim();
+  const to_      = document.getElementById('receiver').value.trim();
+  const reason   = document.getElementById('reason').value.trim();
+  const reqDate  = fmtDate(document.getElementById('reqDate').value);
+  const expDate  = fmtDate(document.getElementById('expDate').value);
   const positions = pendingTimestamps.map(s => {
     const m = Math.floor(s / 60);
     return `${String(m).padStart(2,'0')}:${String(Math.floor(s % 60)).padStart(2,'0')}`;
@@ -806,13 +812,13 @@ function buildTxt() {
 
   return [
     `곡명: ${title || '—'}`,
+    `제작자: ${producer || '—'}`,
     `보내는 곳: ${from_ || '—'}`,
     `받는 곳: ${to_ || '—'}`,
     `요청 일자: ${reqDate}`,
     `반출 일자: ${expDate}`,
     `반출 사유: ${reason || '—'}`,
-    `노이즈 삽입 위치:`,
-    positions,
+    `노이즈 삽입 위치: ${positions}`,
   ].join('\n');
 }
 
@@ -860,6 +866,7 @@ async function logToSheet() {
       reqDate:   fmtDate(document.getElementById('reqDate').value),
       expDate:   fmtDate(document.getElementById('expDate').value),
       title:     document.getElementById('songTitle').value.trim(),
+      producer:  document.getElementById('producer').value.trim(),
       from:      document.getElementById('recipient').value.trim(),
       to:        document.getElementById('receiver').value.trim(),
       reason:    document.getElementById('reason').value.trim(),
@@ -886,6 +893,7 @@ function retry() {
   document.getElementById('upZone').classList.remove('has');
   document.getElementById('fi').value = '';
   document.getElementById('songTitle').value = '';
+  document.getElementById('producer').value = '';
   document.getElementById('recipient').value = '';
   document.getElementById('receiver').value = '';
   document.getElementById('reason').value = '';
